@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>PadelFit — Tu coach de rendimiento</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark: #1B4D3E;
+      --green-mid: #4CAF82;
+      --green-light: #E8F5EE;
+      --yellow: #C8E04A;
+      --wood: #C09070;
+      --bg: #F4F6F4;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --text-muted: #6b7280;
+      --border: rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* HEADER */
+    .app-header {
+      background: var(--green-dark);
+      padding: 48px 20px 0;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .logo-box {
+      width: 34px; height: 34px;
+      background: var(--green-mid);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-box svg { width: 22px; height: 22px; }
+    .app-title { font-size: 20px; font-weight: 600; color: #fff; }
+    .app-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 14px; }
+
+    .tab-bar {
+      display: flex;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .tab {
+      flex: 1; padding: 9px 0;
+      font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      border: none; background: transparent; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active { background: var(--green-mid); color: #fff; border-radius: 8px; }
+
+    /* SCREENS */
+    .screen { display: none; flex: 1; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* PLAN SCREEN */
+    .content { padding: 16px; background: var(--bg); flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-bottom: 80px; }
+
+    .card {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .card-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+
+    .form-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+    .form-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .form-select {
+      width: 100%; padding: 10px 12px;
+      border-radius: 9px;
+      border: 0.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      appearance: none;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+    .btn-green {
+      width: 100%; padding: 13px;
+      border-radius: 11px;
+      background: var(--green-dark); color: #fff;
+      border: none; font-size: 15px; font-weight: 600;
+      cursor: pointer; margin-top: 6px;
+      transition: opacity 0.2s;
+    }
+    .btn-green:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .plan-output {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .plan-output.loading { color: var(--text-muted); font-style: italic; }
+
+    /* COACH SCREEN */
+    .coach-wrap { display: flex; flex-direction: column; flex: 1; background: var(--bg); }
+
+    .quick-btns {
+      display: flex; flex-wrap: wrap; gap: 7px;
+      padding: 12px 14px 8px;
+      background: var(--bg);
+    }
+    .quick-btn {
+      padding: 7px 12px; border-radius: 18px;
+      border: 0.5px solid var(--border);
+      background: var(--card); color: var(--text-muted);
+      font-size: 12px; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .quick-btn:hover { border-color: var(--green-mid); color: var(--green-dark); }
+
+    .chat-area {
+      flex: 1; overflow-y: auto;
+      padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      padding-bottom: 80px;
+    }
+    .bubble {
+      max-width: 84%;
+      padding: 10px 13px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .bubble.ai {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: 4px 14px 14px 14px;
+      align-self: flex-start;
+      color: var(--text);
+    }
+    .bubble.user {
+      background: var(--green-dark); color: #fff;
+      border-radius: 14px 14px 4px 14px;
+      align-self: flex-end;
+    }
+    .bubble.thinking {
+      background: var(--bg); color: var(--text-muted);
+      border-radius: 14px; align-self: flex-start;
+      font-style: italic; font-size: 13px;
+      border: 0.5px solid var(--border);
+    }
+
+    .chat-input-row {
+      display: flex; gap: 8px;
+      padding: 10px 14px 14px;
+      background: var(--card);
+      border-top: 0.5px solid var(--border);
+      position: fixed; bottom: 60px;
+      width: 100%; max-width: 420px;
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px;
+      border-radius: 22px;
+      border: 0.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px; outline: none;
+      font-family: inherit;
+    }
+    .send-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--green-mid); border: none;
+      color: #fff; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      display: flex;
+      background: var(--card);
+      border-top: 0.5px solid var(--border);
+      padding: 10px 0 16px;
+      position: fixed; bottom: 0;
+      width: 100%; max-width: 420px;
+      z-index: 10;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; cursor: pointer;
+    }
+    .nav-item i { font-size: 22px; color: var(--text-muted); }
+    .nav-item.active i { color: var(--green-dark); }
+    .nav-label { font-size: 10px; color: var(--text-muted); }
+    .nav-item.active .nav-label { color: var(--green-dark); font-weight: 600; }
+
+    /* PROGRESO SCREEN */
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric-card {
+      background: var(--card); border: 0.5px solid var(--border);
+      border-radius: 12px; padding: 14px;
+    }
+    .metric-lbl { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-val { font-size: 24px; font-weight: 700; color: var(--text); }
+    .metric-sub { font-size: 11px; color: var(--green-mid); margin-top: 3px; }
+
+    .pb-wrap { margin-bottom: 12px; }
+    .pb-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .pb-lbl { font-size: 13px; color: var(--text); }
+    .pb-pct { font-size: 13px; color: var(--text-muted); }
+    .pb-track { height: 7px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+    .pb-fill { height: 100%; border-radius: 4px; background: var(--green-dark); }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge {
+      background: var(--card); border: 0.5px solid var(--border);
+      border-radius: 10px; padding: 8px 12px;
+      font-size: 12px; color: var(--text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .badge.earned { background: var(--green-light); border-color: var(--green-mid); color: var(--green-dark); }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="app-header">
+    <div class="header-row">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24" fill="none">
+          <ellipse cx="12" cy="10" rx="7" ry="9" fill="white"/>
+          <ellipse cx="12" cy="10" rx="7" ry="9" fill="none" stroke="#4CAF82" stroke-width="1.5"/>
+          <line x1="12" y1="1" x2="12" y2="19" stroke="#4CAF82" stroke-width="1"/>
+          <circle cx="9" cy="7" r="1.2" fill="#1B4D3E"/>
+          <circle cx="15" cy="7" r="1.2" fill="#1B4D3E"/>
+          <circle cx="9" cy="12" r="1.2" fill="#1B4D3E"/>
+          <circle cx="15" cy="12" r="1.2" fill="#1B4D3E"/>
+          <rect x="10" y="19" width="4" height="6" rx="2" fill="#C09070"/>
+          <circle cx="5" cy="4" r="2.5" fill="#C8E04A"/>
+        </svg>
+      </div>
+      <span class="app-title">PadelFit</span>
+    </div>
+    <div class="app-sub">Tu coach de rendimiento personal</div>
+    <div class="tab-bar">
+      <button class="tab active" onclick="showTab('plan',0)">Plan semanal</button>
+      <button class="tab" onclick="showTab('coach',1)">Coach IA</button>
+      <button class="tab" onclick="showTab('progreso',2)">Progreso</button>
+    </div>
+  </div>
+
+  <!-- PLAN SEMANAL -->
+  <div class="screen active" id="tab-plan">
+    <div class="content">
+      <div class="card">
+        <div class="card-title">Cuéntame sobre ti</div>
+        <div class="card-sub">La IA generará tu plan personalizado</div>
+        <div class="form-row">
+          <span class="form-label">Nivel de pádel</span>
+          <select class="form-select" id="nivel">
+            <option value="iniciante">Iniciante (menos de 1 año)</option>
+            <option value="intermedio" selected>Intermedio (juego con regularidad)</option>
+            <option value="avanzado">Avanzado (compito)</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <span class="form-label">Días / semana</span>
+            <select class="form-select" id="dias">
+              <option value="2">2 días</option>
+              <option value="3" selected>3 días</option>
+              <option value="4">4 días</option>
+              <option value="5">5 días</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <span class="form-label">Objetivo</span>
+            <select class="form-select" id="objetivo">
+              <option value="potencia" selected>Potencia</option>
+              <option value="resistencia">Resistencia</option>
+              <option value="prevención">Prevención</option>
+              <option value="integral">Integral</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <span class="form-label">Lesiones o limitaciones</span>
+          <select class="form-select" id="lesion">
+            <option value="ninguna">Ninguna</option>
+            <option value="hombro">Hombro</option>
+            <option value="codo (epicondilitis)">Codo (epicondilitis)</option>
+            <option value="rodilla">Rodilla</option>
+            <option value="espalda">Espalda</option>
+          </select>
+        </div>
+        <button class="btn-green" id="gen-btn" onclick="generarPlan()">
+          <i class="ti ti-sparkles"></i> Generar mi plan semanal
+        </button>
+      </div>
+      <div class="plan-output loading" id="plan-output" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- COACH IA -->
+  <div class="screen" id="tab-coach">
+    <div class="coach-wrap">
+      <div class="quick-btns" id="quick-btns">
+        <button class="quick-btn" onclick="quickSend('¿Qué ejercicios me ayudan a mejorar el smash?')">Mejorar el smash</button>
+        <button class="quick-btn" onclick="quickSend('Tengo dolor en el codo, ¿qué hago?')">Dolor en el codo</button>
+        <button class="quick-btn" onclick="quickSend('¿Cómo calentar antes de un partido?')">Calentamiento</button>
+        <button class="quick-btn" onclick="quickSend('¿Qué debo comer antes de jugar pádel?')">Nutrición</button>
+      </div>
+      <div class="chat-area" id="chat-area">
+        <div class="bubble ai">¡Hola! Soy tu coach de PadelFit 🎾 Puedo ayudarte con entrenamientos, lesiones, técnica y nutrición específica para pádel. ¿Qué necesitas hoy?</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Pregunta al coach..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="send-btn" id="send-btn" onclick="sendMsg()" aria-label="Enviar">&#8593;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="screen" id="tab-progreso">
+    <div class="content">
+      <div class="card">
+        <div class="card-title">Mi progreso — Mes 1</div>
+        <div class="metric-grid" style="margin-top:10px;">
+          <div class="metric-card">
+            <div class="metric-lbl">Sesiones</div>
+            <div class="metric-val">12</div>
+            <div class="metric-sub">Meta: 16/mes</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-lbl">Minutos</div>
+            <div class="metric-val">540</div>
+            <div class="metric-sub">9 horas totales</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-lbl">Racha</div>
+            <div class="metric-val">5 días</div>
+            <div class="metric-sub">Récord personal</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-lbl">Semana actual</div>
+            <div class="metric-val">3 / 3</div>
+            <div class="metric-sub">Completada</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px;">Áreas trabajadas</div>
+        <div class="pb-wrap">
+          <div class="pb-row"><span class="pb-lbl">Fuerza y potencia</span><span class="pb-pct">72%</span></div>
+          <div class="pb-track"><div class="pb-fill" style="width:72%;background:#1B4D3E;"></div></div>
+        </div>
+        <div class="pb-wrap">
+          <div class="pb-row"><span class="pb-lbl">Resistencia aeróbica</span><span class="pb-pct">55%</span></div>
+          <div class="pb-track"><div class="pb-fill" style="width:55%;background:#4CAF82;"></div></div>
+        </div>
+        <div class="pb-wrap">
+          <div class="pb-row"><span class="pb-lbl">Movilidad y prevención</span><span class="pb-pct">40%</span></div>
+          <div class="pb-track"><div class="pb-fill" style="width:40%;background:#7B5EA7;"></div></div>
+        </div>
+        <div class="pb-wrap">
+          <div class="pb-row"><span class="pb-lbl">Explosividad y agilidad</span><span class="pb-pct">60%</span></div>
+          <div class="pb-track"><div class="pb-fill" style="width:60%;background:#E09B30;"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:10px;">Logros</div>
+        <div class="badge-row">
+          <div class="badge earned"><i class="ti ti-flame" style="font-size:15px;"></i> Primera semana</div>
+          <div class="badge earned"><i class="ti ti-trophy" style="font-size:15px;"></i> 10 sesiones</div>
+          <div class="badge earned"><i class="ti ti-target" style="font-size:15px;"></i> Racha de 5 días</div>
+          <div class="badge"><i class="ti ti-lock" style="font-size:15px;color:#ccc;"></i> 30 sesiones</div>
+          <div class="badge"><i class="ti ti-lock" style="font-size:15px;color:#ccc;"></i> 1 mes seguido</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-0" onclick="showTab('plan',0);setNav(0)">
+      <i class="ti ti-calendar"></i>
+      <span class="nav-label">Plan</span>
+    </div>
+    <div class="nav-item" id="nav-1" onclick="showTab('coach',1);setNav(1)">
+      <i class="ti ti-robot"></i>
+      <span class="nav-label">Coach IA</span>
+    </div>
+    <div class="nav-item" id="nav-2" onclick="showTab('progreso',2);setNav(2)">
+      <i class="ti ti-chart-bar"></i>
+      <span class="nav-label">Progreso</span>
+    </div>
+    <div class="nav-item" id="nav-3">
+      <i class="ti ti-user"></i>
+      <span class="nav-label">Perfil</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const tabs = ['plan','coach','progreso'];
+
+function showTab(name, idx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === idx));
+  setNav(idx);
+}
+
+function setNav(idx) {
+  document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i === idx));
+}
+
+async function generarPlan() {
+  const nivel = document.getElementById('nivel').value;
+  const dias = document.getElementById('dias').value;
+  const objetivo = document.getElementById('objetivo').value;
+  const lesion = document.getElementById('lesion').value;
+  const btn = document.getElementById('gen-btn');
+  const output = document.getElementById('plan-output');
+
+  btn.disabled = true;
+  btn.textContent = 'Generando tu plan...';
+  output.style.display = 'block';
+  output.className = 'plan-output loading';
+  output.textContent = 'La IA está diseñando tu plan personalizado...';
+
+  const prompt = `Eres el coach de PadelFit. El usuario tiene estos datos:
+- Nivel de pádel: ${nivel}
+- Días disponibles: ${dias} días por semana
+- Objetivo principal: ${objetivo}
+- Lesiones o limitaciones: ${lesion}
+
+Genera un plan semanal de entrenamiento físico específico para pádel. Formato:
+- Un título por día (ej: "LUNES — Fuerza tren superior")
+- 3-4 ejercicios por sesión con series y repeticiones
+- Días de descanso: márcalos como "DESCANSO ACTIVO — [actividad suave]"
+- Al final, un consejo personalizado breve
+Máximo 280 palabras. En español.`;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(b => b.text || '').join('');
+    output.className = 'plan-output';
+    output.textContent = text;
+  } catch(e) {
+    output.className = 'plan-output';
+    output.textContent = 'Error al generar el plan. Comprueba la conexión.';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-sparkles"></i> Generar mi plan semanal';
+}
+
+const chatHistory = [];
+const systemPrompt = `Eres el coach de PadelFit, una app de entrenamiento físico para jugadores de pádel. Eres experto en preparación física, prevención de lesiones, técnica de pádel y nutrición deportiva. Tus respuestas son breves y prácticas (máximo 4-5 oraciones), siempre orientadas al pádel, en español, con tono cercano y motivador.`;
+
+async function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addBubble(msg, 'user');
+  document.getElementById('quick-btns').style.display = 'none';
+  await callCoach(msg);
+}
+
+async function quickSend(msg) {
+  addBubble(msg, 'user');
+  document.getElementById('quick-btns').style.display = 'none';
+  await callCoach(msg);
+}
+
+function addBubble(text, type) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'bubble ' + type;
+  div.textContent = text;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+async function callCoach(userMsg) {
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  const thinking = addBubble('Escribiendo...', 'thinking');
+  chatHistory.push({ role: 'user', content: userMsg });
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: systemPrompt, messages: chatHistory })
+    });
+    const data = await res.json();
+    const reply = data.content.map(b => b.text || '').join('');
+    chatHistory.push({ role: 'assistant', content: reply });
+    thinking.className = 'bubble ai';
+    thinking.textContent = reply;
+  } catch(e) {
+    thinking.className = 'bubble ai';
+    thinking.textContent = 'Error de conexión. Inténtalo de nuevo.';
+  }
+
+  document.getElementById('chat-area').scrollTop = 9999;
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
